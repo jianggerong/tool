@@ -6,12 +6,17 @@
  */
 package com.kit.util;
 
+import java.net.URL;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
+import com.jfinal.kit.StrKit;
 import com.opensymphony.xwork2.util.LocalizedTextUtil;
 
 /**
@@ -515,5 +520,66 @@ public class Helper {
 		}
 		return url;
 	}
-	
+
+	/**
+	 * 数组转String 通过分隔符拼接
+	 * 
+	 * @param array
+	 * @param separator
+	 * @return
+	 */
+	public static String join(Object[] array, String separator) {
+		if (array == null) {
+			return null;
+		}
+		int arraySize = array.length;
+		int bufSize = (arraySize == 0 ? 0 : ((array[0] == null ? 16 : array[0]
+				.toString().length()) + 1) * arraySize);
+		StringBuffer buf = new StringBuffer(bufSize);
+		for (int i = 0; i < arraySize; i++) {
+			if (i > 0) {
+				buf.append(separator);
+			}
+			if (array[i] != null) {
+				buf.append(array[i]);
+			}
+		}
+		return buf.toString();
+	}
+	/**
+	 * 解析URL
+	 * 
+	 * @param urlStr
+	 * @return Map<String, String>
+	 */
+	public static Map<String, String> urlParse(String urlStr) {
+		Map<String, String> map = new HashMap<String, String>();
+		URL url;
+		try {
+			url = new URL(URLDecoder.decode(urlStr, "utf-8"));
+			String search = url.getQuery();
+			if (StrKit.notBlank(search)) {
+				String[] params = search.split("&");
+				System.out.println(("size:" + params.length + "; search:" + search));
+				for (int i = 0; i < params.length; i++) {
+					String n = params[i];
+					if (StrKit.notBlank(n)) {
+						String[] param = n.split("=");
+						if (param != null && param.length > 1) {
+							String key = param[0];
+							String val = param[1];
+							System.out.println((key + ":" + val));
+							if (StrKit.notBlank(key)) {
+								map.put(key, val);
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("url parse exception");
+		}
+		return map;
+	}
 }
